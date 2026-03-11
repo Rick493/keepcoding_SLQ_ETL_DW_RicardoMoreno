@@ -7,7 +7,7 @@ Explora el fichero flights y analiza:
 SELECT COUNT(*) AS total_registros
 FROM flights;
 
-Esta consulta nos dice cuántas filas de datos tenemos en total en la tabla. Es el punto de partida para saber qué tan grande es nuestro conjunto de datos.
+Nos dice cuántas filas de datos tenemos en total en la tabla. 
 
 2. Cuántos vuelos distintos hay
 
@@ -141,7 +141,7 @@ FROM flights
 WHERE unique_identifier = 'EI-8337-20230630-DUB-LHR'
 ORDER BY updated_at ASC;
 
-Los registros no DUPLICADOS sino actualizaciones. entiendo que la información cambia dependiendo del horario previsto,retrasoa aterrizaje, etc.
+Registros no duplicados sino actualizaciones. entiendo que la información cambia dependiendo del horario previsto,retrasoa aterrizaje, etc.
 
 -------------------------------------------------------------------------------------------------------------------
 
@@ -159,7 +159,7 @@ FROM flights
 GROUP BY unique_identifier
 HAVING COUNT(DISTINCT created_at) > 1;
 
-Como el resultado es 0, confirmamos que la información es consistente. No hay vuelos con "doble fecha de nacimiento", lo que significa que el sistema respeta el origen de cada registro a pesar de las actualizaciones posteriores.
+Como el resultado es 0, confirmamos que la información es consistente. No hay vuelos con doble fecha de nacimiento, lo que significa que el sistema respeta el origen de cada registro a pesar de las actualizaciones posteriores.
 
 
 2. La información de updated_at deber ser igual o más que la información de
@@ -169,7 +169,7 @@ SELECT unique_identifier, created_at, updated_at
 FROM flights
 WHERE updated_at < created_at;
 
-Al no obtener resultados, demostramos que la información es coherente y verosímil. Todos los eventos registrados ocurrieron en un orden temporal lógico (primero se crea, luego se actualiza).
+Al no obtener resultados, demostramos que la información es coherente. Todos los eventos registrados ocurrieron en un orden temporal lógico (primero se crea, luego se actualiza).
 
 ------------------------------------------------------------------------------------------------------------------------------
 
@@ -194,7 +194,7 @@ SELECT *
 FROM ranked_flights
 WHERE posicion = 1;
 
-Al crear esta vista, hemos transformado un historial de actualizaciones en una foto actual del aeropuerto. Ahora cada fila representa un vuelo único con su estado final (si llegó a tiempo, si se canceló o cuánto retraso tuvo finalmente).
+Al crear esta vista, hemos transformado un historial de actualizaciones en una foto actual del aeropuerto. Ahora cada fila representa un vuelo único con su estado final.
 
 ---------------------------------------------------------------------------------------
 
@@ -214,16 +214,10 @@ Realiza las validaciones para los campos local_arrival y local_actual_arrival
 
 SELECT 
     unique_identifier,
-    -- 1. Reconstrucción de Salida Programada
     COALESCE(local_departure, created_at) AS effective_local_departure,
-    
-    -- 2. Reconstrucción de Salida Real (si local_actual es nulo, mira local_departure, si no, created_at)
     COALESCE(local_actual_departure, local_departure, created_at) AS effective_local_actual_departure,
-    
-    -- Extra: Reconstrucción de Llegadas
     COALESCE(local_arrival, created_at) AS effective_local_arrival,
     COALESCE(local_actual_arrival, local_arrival, created_at) AS effective_local_actual_arrival,
-    
     arrival_status,
     airline_code
 FROM last_flight_status;
@@ -275,8 +269,7 @@ AF-220-20250216-CDG-MAD,2025-02-16 16:00:00,2025-02-16 16:05:00,2025-02-16 23:00
 AF-238-20250902-CDG-MAD,2025-09-02 07:00:00,2025-09-02 07:45:00,2025-09-02 11:00:00,2025-09-02 11:40:00,DY,AF
 
 
-Al reconstruir estos campos, estamos eliminando los "huecos" (nulos) de nuestra base de datos. Esto es fundamental porque si más adelante queremos calcular cuánto tiempo duró un vuelo, no podríamos hacerlo si las celdas estuvieran vacías. Ahora tenemos una columna "efectiva" que siempre tiene un valor verosímil para trabajar.
-
+Al reconstruir estos campos, estamos eliminando los NULL de nuestra base de datos. 
 
 ----------------------------------------------------------------------------------------------
 

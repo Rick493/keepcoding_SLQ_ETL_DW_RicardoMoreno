@@ -1,5 +1,3 @@
-# keepcoding_SLQ_ETL_DW_RicardoMoreno
-
 Enunciado 1.
 Explora el fichero flights y analiza:
 1. Cuántos registros hay en total

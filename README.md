@@ -3,24 +3,24 @@
 En este readme podremos encontrar tanto el encabezado de la practica como sus respuestas, tambien he dejado un .sql para su uso desde table plus. 
 El mismo codigo con la explicacion lo tenemos desde el documento .sql
 
-
-Enunciado 1.
+/*Enunciado 1.
 Explora el fichero flights y analiza:
-1. Cuántos registros hay en total
+1. Cuántos registros hay en total*/
 
+    
 SELECT COUNT(*) AS total_registros
 FROM flights;
 
-Nos dice cuántas filas de datos tenemos en total en la tabla. 
+--Nos dice cuántas filas de datos tenemos en total en la tabla.--
 
-2. Cuántos vuelos distintos hay
+/*2. Cuántos vuelos distintos hay*/
 
 SELECT COUNT(DISTINCT unique_identifier) AS vuelos_distintos
 FROM flights;
 
 266
 
-3. Cuántos vuelos tienen más de un registro
+/*3. Cuántos vuelos tienen más de un registros*/
 
 SELECT unique_identifier, COUNT(*) AS repeticiones
 FROM flights
@@ -131,9 +131,9 @@ AA-275-20251207-JFK-MAD,2
 AR-264-20250102-EZE-MAD,2
 
 ---------------------------------------------------------------------------------------------------------------
-Enunciado 2.
+/*Enunciado 2.
 Por qué hay registro duplicados para un mismo vuelo. Para ello, selecciona varios vuelos y analiza la evolución temporal de cada vuelo.
-1. Qué información cambia de un registro a otro
+1. Qué información cambia de un registro a otro*/
 
 SELECT unique_identifier, arrival_status, delay_mins, created_at, updated_at
 FROM flights
@@ -145,45 +145,45 @@ FROM flights
 WHERE unique_identifier = 'EI-8337-20230630-DUB-LHR'
 ORDER BY updated_at ASC;
 
-Registros no duplicados sino actualizaciones. entiendo que la información cambia dependiendo del horario previsto,retrasoa aterrizaje, etc.
+--Registros no duplicados sino actualizaciones. entiendo que la información cambia dependiendo del horario previsto,retrasoa aterrizaje, etc.--
 
 -------------------------------------------------------------------------------------------------------------------
 
-Enunciado 3.
+/*Enunciado 3.
 Evalúa la calidad del dato. La calidad del dato nos indica si la información es consistente,
 completa, coherente y representa una realidad verosímil. Para ello debemos establecer
 unos criterios:
 
 
 1. La información de created_at debe ser única para cada vuelo aunque tenga más de
-un registro.
+un registro.*/
 
 SELECT unique_identifier, COUNT(DISTINCT created_at) AS momentos_creacion
 FROM flights
 GROUP BY unique_identifier
 HAVING COUNT(DISTINCT created_at) > 1;
 
-Como el resultado es 0, confirmamos que la información es consistente. No hay vuelos con doble fecha de nacimiento, lo que significa que el sistema respeta el origen de cada registro a pesar de las actualizaciones posteriores.
+--Como el resultado es 0, confirmamos que la información es consistente. No hay vuelos con doble fecha de nacimiento, lo que significa que el sistema respeta el origen de cada registro a pesar de las actualizaciones posteriores.--
 
 
-2. La información de updated_at deber ser igual o más que la información de
-created_at, lo que nos indica coherencia y consistencia
+/*2. La información de updated_at deber ser igual o más que la información de
+created_at, lo que nos indica coherencia y consistencia*/
 
 SELECT unique_identifier, created_at, updated_at
 FROM flights
 WHERE updated_at < created_at;
 
-Al no obtener resultados, demostramos que la información es coherente. Todos los eventos registrados ocurrieron en un orden temporal lógico (primero se crea, luego se actualiza).
+--Al no obtener resultados, demostramos que la información es coherente. Todos los eventos registrados ocurrieron en un orden temporal lógico (primero se crea, luego se actualiza).--
 
 ------------------------------------------------------------------------------------------------------------------------------
 
-Enunciado 4.
+/*Enunciado 4.
 El último estado de cada vuelo. Cada vuelo puede aparecer varias veces en el dataset, para
 avanzar con nuestro análisis necesitamos quedarnos solo con el último registro de cada
 vuelo.
 Puedes crear una tabla o vista resultante de esta query en tu base de datos local, la
 utilizaremos en los siguientes enunciados. Si prefieres no guardar la última información,
-tendrás que hacer uso de esa query como una CTE en los enunciados siguientes
+tendrás que hacer uso de esa query como una CTE en los enunciados siguientes*/
 
 CREATE OR REPLACE VIEW last_flight_status AS
 WITH ranked_flights AS (
@@ -198,11 +198,11 @@ SELECT *
 FROM ranked_flights
 WHERE posicion = 1;
 
-Al crear esta vista, hemos transformado un historial de actualizaciones en una foto actual del aeropuerto. Ahora cada fila representa un vuelo único con su estado final.
+--Al crear esta vista, hemos transformado un historial de actualizaciones en una foto actual del aeropuerto. Ahora cada fila representa un vuelo único con su estado final.--
 
 ---------------------------------------------------------------------------------------
 
-Enunciado 5.
+/*Enunciado 5.
 Considerando que los campos local_departure y local_actual_departure son necesarios
 para el análisis, valida y reconstruye estos valores siguiendo estas reglas:
 
@@ -214,7 +214,7 @@ Crea dos nuevos campos:
 ● effective_local_departure
 ● effective_local_actual_departure
 Extra:
-Realiza las validaciones para los campos local_arrival y local_actual_arrival
+Realiza las validaciones para los campos local_arrival y local_actual_arrival*/
 
 SELECT 
     unique_identifier,
@@ -226,7 +226,7 @@ SELECT
     airline_code
 FROM last_flight_status;
 
-
+/*
 unique_identifier,effective_local_departure,effective_local_actual_departure,effective_local_arrival,effective_local_actual_arrival,arrival_status,airline_code
 AA-101-20240219-JFK-MAD,2024-02-19 18:00:00,2024-02-19 18:00:00,2024-02-20 01:00:00,2024-02-20 00:55:00,OT,AA
 AA-102-20241001-JFK-MAD,2024-10-01 11:00:00,2024-10-01 11:45:00,2024-10-02 05:00:00,2024-10-02 05:40:00,DY,AA
@@ -273,14 +273,14 @@ AF-220-20250216-CDG-MAD,2025-02-16 16:00:00,2025-02-16 16:05:00,2025-02-16 23:00
 AF-238-20250902-CDG-MAD,2025-09-02 07:00:00,2025-09-02 07:45:00,2025-09-02 11:00:00,2025-09-02 11:40:00,DY,AF
 
 
-Al reconstruir estos campos, estamos eliminando los NULL de nuestra base de datos. 
+Al reconstruir estos campos, estamos eliminando los NULL de nuestra base de datos */
 
 ----------------------------------------------------------------------------------------------
 
-Enunciado 6.
+/*Enunciado 6.
 Análisis del estado del vuelo. Haciendo uso del resultado del enunciado 4, analiza los
 estados de los vuelos.
-1. Qué estados de vuelo existen
+1. Qué estados de vuelo existen*/
 
 arrival_status
 CX
@@ -289,7 +289,7 @@ EY
 NS
 OT
 
-2. Cuántos vuelos hay por cada estado
+/*2. Cuántos vuelos hay por cada estado*/
 
 arrival_status,total_vuelos
 DY,143
@@ -299,22 +299,22 @@ NS,8
 ,7
 CX,6
 
-¿Podrías decir qué significa las siglas de cada estado?
+--¿Podrías decir qué significa las siglas de cada estado?--
 
 OT ON TIME
 DY DELAYED 
 NS NO SHOW
 
 
-Si analizamos los datos vemos que tenmos los diferentes tipos de status de vuelos y cuantos tenemos por cada status observando que tenemos 7 vuelos sin asignacion de status o NULL
+--Si analizamos los datos vemos que tenmos los diferentes tipos de status de vuelos y cuantos tenemos por cada status observando que tenemos 7 vuelos sin asignacion de status o NULL.--
 
 ----------------------------------------------------------------------------------------------------
 
-Enunciado 7.
+/*Enunciado 7.
 País de salida de cada vuelo. Tienes disponible un csv. con información de aeropuertos
 airports.csv. Haciendo uso del resultado del enunciado 4, analiza los aeropuertos de salida.
 
-1. De qué país despegan los vuelos
+1. De qué país despegan los vuelos*/
 
 SELECT DISTINCT a.country
 FROM last_flight_status f
@@ -331,7 +331,7 @@ United Kingdom
 United States
 
 
-2. Cuántos vuelos despegan por país
+--2. Cuántos vuelos despegan por país--
 
 SELECT 
     a.country, 
@@ -350,16 +350,16 @@ United Kingdom,18
 Italy,1
 Germany,1
 
-este resultado nos puede indicar que el database que estamos usando esta mas enfocado españa tanto operaciones nacionales como internaciones.
+--este resultado nos puede indicar que el database que estamos usando esta mas enfocado españa tanto operaciones nacionales como internaciones.--
 
 --------------------------------------------------------------------------------------
 
-Enunciado 8.
+/*Enunciado 8.
 Delay medio y estado de vuelo por país de salida. Haciendo uso del resultado del enunciado
 4, analiza el estado y el delay/retraso medio con el objetivo de identificar si existen países
 que pueden presentar problemas operativos en los aeropuertos de salida.
 
-1. Cuál es el delay medio por país
+1. Cuál es el delay medio por país*/
 
 SELECT 
     a.country, 
@@ -378,9 +378,9 @@ Spain,8.69
 United Kingdom,2.50
 Netherlands,-1.18
 
-podemos observar que no tenemos registros de retraso para italia y alemania y holanda con una media de tiempo a favor de 1,18, tambien podemos obserque el pais con mas retraso en madia es EEUU con un 12.71
+--podemos observar que no tenemos registros de retraso para italia y alemania y holanda con una media de tiempo a favor de 1,18, tambien podemos obserque el pais con mas retraso en madia es EEUU con un 12.71--
 
-2. Cuál es la distribución de estados de vuelos por país.
+--2. Cuál es la distribución de estados de vuelos por país.--
 
 SELECT 
     a.country, 
@@ -391,6 +391,7 @@ JOIN airports a ON f.departure_airport = a.airport_code
 GROUP BY a.country, f.arrival_status
 ORDER BY a.country, total_vuelos DESC;
 
+/*
 country,arrival_status,total_vuelos
 France,DY,23
 France,OT,4
@@ -413,17 +414,18 @@ United States,DY,17
 United States,OT,7
 United States,CX,1
 United States,EY,1
+*/
 
 ----------------------------------------------------------------------------------------------------------------------------
 
-Enunciado 9.
+/*Enunciado 9.
 El estado de vuelo por país y por época del año. Dado que no en todas las épocas del año
 las condiciones climatólogicas son iguales, analiza si la estaciones del año impactan en el
 delay medio por país. Considera la siguiente clasificación de meses del año por época:
 ● Invierno: diciembre, enero, febrero
 ● Primavera: marzo, abril, mayo
 ● Verano: junio, julio, agosto
-● Otoño: septiembre, octubre, noviembre
+● Otoño: septiembre, octubre, noviembre*/
 
 SELECT 
     a.country,
@@ -441,6 +443,7 @@ GROUP BY a.country, estacion
 ORDER BY a.country, delay_medio DESC;
 
 
+/*
 country,estacion,delay_medio,total_vuelos
 France,Verano,11.88,8
 France,Invierno,10.00,11
@@ -467,14 +470,14 @@ United States,Verano,2.50,6
 
 
 analizando esto podemos conluir en que paises como españa y francia parecen tener mayor retraso en los meses de verano por demanda de viajes
-paises como EEUU tienen mayor retradso en otoño e invierno, paises bajos en cualquier epoca tienen numeros negativos y reino unido tienen tiene una puntualidad casi perfecta
+paises como EEUU tienen mayor retradso en otoño e invierno, paises bajos en cualquier epoca tienen numeros negativos y reino unido tienen tiene una puntualidad casi perfecta*/
 
 ---------------------------------------------------------------------------------------
 
-Enunciado 10.
+/*Enunciado 10.
 Frecuencia de actualización de los vuelos. Volviendo al análisis de la calidad del dataset,
 explora con qué frecuencia se registran actualizaciones de cada vuelo y calcula la
-frecuencia media de actualización por aeropuerto de salida
+frecuencia media de actualización por aeropuerto de salida*/
 
 
 frecuencia de actualizacion: 
@@ -483,6 +486,7 @@ FROM flights
 GROUP BY unique_identifier
 ORDER BY numero_actualizaciones DESC;
 
+/*
 unique_identifier,numero_actualizaciones
 AV-47-20211101-MAD-BOG	36	
 KL-1704-20240111-MAD-AMS	26	
@@ -494,9 +498,9 @@ KL-932-20220616-DUB-AMS	21
 LS-1204-20211120-AGP-BHX	20	
 KL-1921-20240111-AMS-GDN	20	
 B6-2289-20231011-AMS-JFK	19	
+*/
 
-
-frecuencia media de actualizacion:
+--frecuencia media de actualizacion:
 
 WITH conteo_vuelos AS (
     SELECT departure_airport, unique_identifier, COUNT(*) AS actualizaciones
@@ -510,6 +514,7 @@ FROM conteo_vuelos
 GROUP BY departure_airport
 ORDER BY media_actualizaciones DESC;
 
+/*
 departure_airport,media_actualizaciones
 HKG	24.00	
 DUB	23.50	
@@ -536,16 +541,17 @@ BCN	3.06
 EZE	3.05	
 
 
-La frecuencia media nos indica la riqueza informativa de cada aeropuerto. Un promedio cercano a 1 indica datos estáticos, mientras que promedios superiores a 2 indican un sistema de monitorización dinámico y en tiempo real.
-
+La frecuencia media nos indica la riqueza informativa de cada aeropuerto. 
+Un promedio cercano a 1 indica datos estáticos, mientras que promedios superiores a 2 indican un sistema de monitorización dinámico y en tiempo real.
+*/
 
 -------------------------------------------------------------------------------------------------
-Enunciado 11.
+/*Enunciado 11.
 Consistencia del dato. El campo unique_identifier identifica el vuelo y se construye con:
 aerolínea, número de vuelo, fecha y aeropuertos. Para cada vuelo (último snapshot),
 comprueba si la información del unique_identifier es consistente con las columnas del
 dataset.
-1. Crea un flag is_consistent.
+1. Crea un flag is_consistent.*/
 
 SELECT 
     unique_identifier,
@@ -558,6 +564,7 @@ SELECT
     END AS is_consistent
 FROM last_flight_status;
 
+/*
 unique_identifier,airline_code,departure_airport,arrival_airport,is_consistent
 AA-101-20240219-JFK-MAD,AA,JFK,MAD,1
 AA-102-20241001-JFK-MAD,AA,JFK,MAD,1
@@ -588,17 +595,17 @@ VY-8881-20240201-BCN-PMI,IB,MAD,JFK,0
 VY-8882-20240201-BCN-PMI,IB,MAD,JFK,0
 VY-8883-20240201-BCN-PMI,IB,MAD,JFK,0
 VY-8884-20240201-BCN-PMI,IB,MAD,JFK,0
+*/
 
-2. Calcula cuántos vuelos no son consistentes.
+--2. Calcula cuántos vuelos no son consistentes.
 
 SELECT COUNT(*) AS total_no_consistentes
 FROM last_flight_status
 WHERE unique_identifier NOT LIKE CONCAT(airline_code, '%', departure_airport, '-', arrival_airport);
 
-Nos sale 15 veces.
+--Nos sale 15 veces.
 
-3. Usando la tabla airlines, muestra el nombre de la aerolínea y cuántos vuelos no
-consistentes tiene.
+--3. Usando la tabla airlines, muestra el nombre de la aerolínea y cuántos vuelos no consistentes tiene.
 
 SELECT 
     a.name AS nombre_aerolinea, 
@@ -608,6 +615,7 @@ JOIN airlines a ON f.airline_code = a.airline_code
 WHERE f.unique_identifier NOT LIKE CONCAT(f.airline_code, '%', f.departure_airport, '-', f.arrival_airport)
 GROUP BY a.name;
 
+/*
 nombre_aerolinea,total_errores
 Iberia,15
 
@@ -632,4 +640,5 @@ VY-8882-20240201-BCN-PMI,IB,MAD,JFK,IB-XXXX-YYYYMMDD-MAD-JFK
 VY-8883-20240201-BCN-PMI,IB,MAD,JFK,IB-XXXX-YYYYMMDD-MAD-JFK
 VY-8884-20240201-BCN-PMI,IB,MAD,JFK,IB-XXXX-YYYYMMDD-MAD-JFK
 
+*/
 --------------------------------------------------------------------------

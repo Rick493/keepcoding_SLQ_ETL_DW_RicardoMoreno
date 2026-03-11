@@ -13,7 +13,7 @@ FROM flights;
 SELECT COUNT(DISTINCT unique_identifier) AS vuelos_distintos
 FROM flights;
 
-266
+--266
 
 /*3. Cuántos vuelos tienen más de un registros*/
 
@@ -22,7 +22,7 @@ FROM flights
 GROUP BY unique_identifier
 HAVING COUNT(*) > 1;
 
-
+/*
 unique_identifier,repeticiones
 EI-8337-20230630-DUB-LHR,26
 HO-1306-20221014-HKG-NKG,24
@@ -124,7 +124,7 @@ KL-234-20250722-AMS-BCN,2
 KL-163-20240613-AMS-BCN,2
 AA-275-20251207-JFK-MAD,2
 AR-264-20250102-EZE-MAD,2
-
+*/
 ---------------------------------------------------------------------------------------------------------------
 /*Enunciado 2.
 Por qué hay registro duplicados para un mismo vuelo. Para ello, selecciona varios vuelos y analiza la evolución temporal de cada vuelo.

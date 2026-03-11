@@ -4,13 +4,10 @@ Enunciado 1.
 Explora el fichero flights y analiza:
 1. Cuántos registros hay en total
 
----
-Esta consulta nos dice cuántas filas de datos tenemos en total en la tabla. Es el punto de partida para saber qué tan grande es nuestro conjunto de datos.
----
-
 SELECT COUNT(*) AS total_registros
 FROM flights;
 
+Esta consulta nos dice cuántas filas de datos tenemos en total en la tabla. Es el punto de partida para saber qué tan grande es nuestro conjunto de datos.
 
 2. Cuántos vuelos distintos hay
 
